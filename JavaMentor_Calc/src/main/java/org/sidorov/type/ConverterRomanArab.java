@@ -1,13 +1,24 @@
 package org.sidorov.type;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class ConverterRomanArab implements TypeConverter {
 
     List<String> romanBeforeTen = Arrays.asList("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X");
-    List<String> romanMoreThenTen = Arrays.asList("XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX");
+    final Map<Integer, String> romanMapChar = new LinkedHashMap<>();
+
+    {
+        romanMapChar.put(100, "C");
+        romanMapChar.put(90, "XC");
+        romanMapChar.put(50, "L");
+        romanMapChar.put(40, "XL");
+        romanMapChar.put(10, "X");
+        romanMapChar.put(9, "IX");
+        romanMapChar.put(5, "V");
+        romanMapChar.put(4, "IV");
+        romanMapChar.put(1, "I");
+    }
 
     @Override
     public String getType(String num) {
@@ -26,17 +37,28 @@ public class ConverterRomanArab implements TypeConverter {
     }
 
     @Override
-    public String turnToArabian(String num) {
-        String arabianNum = String.valueOf(romanBeforeTen.indexOf(num) + 1);
+    public String turnToArabian(String romanNum) {
+
+        String arabianNum = String.valueOf(romanBeforeTen.indexOf(romanNum) + 1);
         return arabianNum;
     }
 
     @Override
-    public String turnToRevers(String num) {
-        int index = Integer.parseInt(num) - 1;
-        if(index > romanBeforeTen.size() - 1){
-            return romanMoreThenTen.get(index - 10);
+    public String turnToRevers(String arabNum) {
+        int num = Integer.parseInt(arabNum);
+
+        StringBuilder romanNum = new StringBuilder();
+        for (Map.Entry<Integer, String> entry : romanMapChar.entrySet()) {
+            if (num == entry.getKey()) {
+                romanNum.append(entry.getValue());
+                return romanNum.toString();
+            }
+
+            while (num - entry.getKey() >= 0) {
+                num -= entry.getKey();
+                romanNum.append(entry.getValue());
+            }
         }
-        return romanBeforeTen.get(index);
+        return romanNum.toString();
     }
 }
